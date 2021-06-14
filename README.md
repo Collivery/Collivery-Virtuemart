@@ -1,4 +1,4 @@
-MDS Collivery Shipping Module V 1.3 
+MDS Collivery Shipping Module V 2.1.0
 =============================
 
 *MDS Collivery Shipping Module for Virtuemart, an eCommerce plugin for Joomla!*
