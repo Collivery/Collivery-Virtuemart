@@ -65,7 +65,7 @@ class plgVmShipmentMds_Shipping extends vmPSPlugin
         $this->tableFields = array_keys($this->getTableSQLFields());
         $varsToPush = $this->getVarsToPush();
         $this->setConfigParameterable($this->_configTableFieldName, $varsToPush);
-
+        
         // Load the database and execute our sql file
         $this->db = Factory::getDbo();
 
@@ -400,6 +400,20 @@ class plgVmShipmentMds_Shipping extends vmPSPlugin
             }
         }
         return 'Unknown';
+    }
+
+    /**
+     * Declare parameters from the XML file
+     *
+     * @return array
+     */
+    protected function getVarsToPush()
+    {
+        return [
+            'username' => ['default_value', 'char'],
+            'password' => ['default_value', 'char'],
+            'risk_cover' => ['0', 'int']
+        ];
     }
 }
 
