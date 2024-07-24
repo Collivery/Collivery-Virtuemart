@@ -91,7 +91,7 @@ class plgVmShipmentMds_Shipping extends vmPSPlugin
         $config = [
             'app_name' => $this->app_info->name, // Application Name
             'app_version' => $this->app_info->version, // Application Version
-            'app_host' => 'Joomla: '.$version->getShortVersion().' - VirtueMart: '.VmConfig::getInstalledVersion(), // Framework/CMS name and version, eg 'WordPress 3.8.1 WooCommerce 2.0.20' / ''
+            'app_host' => 'Joomla: '.$version->getShortVersion().' - VirtueMart: '.$this->getVirtueMartVersion(), // Framework/CMS name and version
             'app_url' => Uri::base(), // URL your site is hosted on
             'user_email' => $this->username,
             'user_password' => $this->password
@@ -389,6 +389,18 @@ class plgVmShipmentMds_Shipping extends vmPSPlugin
 
         return $product_count;
     }
+
+    protected function getVirtueMartVersion()
+    {
+        if (class_exists('VmConfig')) {
+            if (method_exists('VmConfig', 'getInstalledVersion')) {
+                return VmConfig::getInstalledVersion();
+            } elseif (defined('VM_VERSION')) {
+                return VM_VERSION;
+            }
+        }
+        return 'Unknown';
+    }
 }
 
-?>
+
