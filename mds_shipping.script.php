@@ -32,10 +32,8 @@ class plgVmShipmentMds_ShippingInstallerScript extends InstallerScript
 
     /**
      * Constructor
-     *
-     * @param mixed $adapter The object responsible for running this script
      */
-    public function __construct($adapter)
+    public function __construct()
     {
         // Check PHP version
         if (version_compare(PHP_VERSION, '5.3.0') < 0) {
