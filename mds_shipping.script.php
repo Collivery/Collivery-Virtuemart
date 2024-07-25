@@ -36,8 +36,9 @@ class plgVmShipmentMds_ShippingInstallerScript extends InstallerScript
     public function __construct()
     {
         // Check PHP version
-        if (version_compare(PHP_VERSION, '5.3.0') < 0) {
-            die('Your PHP version is not able to run this plugin, update to the latest version before installing this plugin. <a href="'.Uri::base().'">Return</a>');
+        if (version_compare(PHP_VERSION, '7.4', '<')) {
+            Factory::getApplication()->enqueueMessage('Your PHP version is not compatible with this plugin. Please update to PHP 7.4 or higher.', 'error');
+            return false;
         }
 
         // Load the database
