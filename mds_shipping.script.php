@@ -102,13 +102,11 @@ class plgVmShipmentMds_ShippingInstallerScript extends InstallerScript
     }
 
     /**
-     * Called on installation
+     * Method to install the extension
      *
-     * @param mixed $adapter The object responsible for running this script
-     *
-     * @return boolean true on success
+     * @return void
      */
-    public function install($adapter)
+    public function install($parent)
     {
         $this->runSqlScript('sql/mds_collivery_install.sql');
 
