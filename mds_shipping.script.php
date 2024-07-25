@@ -6,7 +6,9 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\Version;
 use Joomla\CMS\Installer\InstallerScript;
-use VirtueMartModelConfig as VmConfig;
+use Joomla\Database\DatabaseDriver;
+use Joomla\CMS\Filesystem\Folder;
+use Joomla\CMS\Filesystem\File;
 
 // Load VirtueMart config
 if (!class_exists('VmConfig')) {
@@ -18,17 +20,16 @@ if (!class_exists('VmConfig')) {
  */
 class plgVmShipmentMds_ShippingInstallerScript extends InstallerScript
 {
-
-    private $db;
-    private $towns;
-    private $services;
-    private $location_types;
-    private $extension_id;
-    private $app_name;
-    private $app_info;
-    private $suburbs;
-    private $password;
-    private $username;
+    protected $db;
+    protected $towns;
+    protected $services;
+    protected $location_types;
+    protected $extension_id;
+    protected $app_name;
+    protected $app_info;
+    protected $suburbs;
+    protected $password;
+    protected $username;
 
     /**
      * Constructor
@@ -42,7 +43,7 @@ class plgVmShipmentMds_ShippingInstallerScript extends InstallerScript
         }
 
         // Load the database
-        $this->db = Factory::getContainer()->get('DatabaseDriver');
+        $this->db = Factory::getContainer()->get(DatabaseDriver::class);
     }
 
     /**
