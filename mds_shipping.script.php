@@ -170,12 +170,13 @@ class plgVmShipmentMds_ShippingInstallerScript extends InstallerScript
         }
 
         // Replace jQuery file
-        $jquery_destination = JPATH_SITE.'/components/com_virtuemart/assets/js/jquery.min.js';
-        if (file_exists($jquery_destination)) {
-            unlink($jquery_destination);
+        $jquery_destination = JPATH_SITE . '/components/com_virtuemart/assets/js/jquery.min.js';
+        if (File::exists($jquery_destination)) {
+            File::delete($jquery_destination);
         }
-        $jquery_source = JPATH_PLUGINS.'/vmshipment/mds_shipping/jquery.min.js';
-        copy($jquery_source, $jquery_destination);
+        $jquery_source = JPATH_PLUGINS . '/vmshipment/mds_shipping/jquery.min.js';
+        File::copy($jquery_source, $jquery_destination);
+    }
 
         // Insert menu entries
         $sel_query = "SELECT module_id FROM `#__virtuemart_modules` WHERE module_name='order';";
