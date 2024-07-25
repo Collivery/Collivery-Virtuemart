@@ -113,24 +113,60 @@ class plgVmShipmentMds_ShippingInstallerScript extends InstallerScript
         $this->init();
 
         // Copy necessary files
-        foreach (['components', 'administrator', 'mds_validation'] as $folder) {
+        $this->copyFiles();
+
+        // Insert menu entries
+        $this->insertMenuEntries();
+
+        // Insert new mds module
+        $this->insertMdsModule();
+
+        // Insert services and towns
+        $this->insertServicesAndTowns();
+    }
+
+    /**
+     * Method to update the extension
+     *
+     * @return void
+     */
+    public function update($parent)
+    {
+        $this->install($parent);
+    }
+
+    /**
+     * Method to uninstall the extension
+     *
+     * @return void
+     */
+    public function uninstall($parent)
+    {
+        // Implement uninstall logic if necessary
+    }
+
+    /**
+     * Copy files method
+     */
+    private function copyFiles()
+    {
+        $folders = ['components', 'administrator', 'mds_validation'];
+        foreach ($folders as $folder) {
             if ($folder == 'components') {
-                $source = JPATH_PLUGINS.'/vmshipment/mds_shipping/components/com_virtuemart';
-                $destination = JPATH_SITE.'/components/com_virtuemart';
-                $this->recurse_copy($source, $destination);
+                $source = JPATH_PLUGINS . '/vmshipment/mds_shipping/components/com_virtuemart';
+                $destination = JPATH_SITE . '/components/com_virtuemart';
             } elseif ($folder == 'mds_validation') {
-                $dest = JPATH_PLUGINS.'/vmuserfield';
-                if (!is_dir($dest)) {
-                    @mkdir($dest, 0755);
+                $dest = JPATH_PLUGINS . '/vmuserfield';
+                if (!Folder::exists($dest)) {
+                    Folder::create($dest, 0777);
                 }
-                $source = JPATH_PLUGINS.'/vmshipment/mds_shipping/mds_validation';
-                $destination = $dest.'/mds_validation';
-                $this->recurse_copy($source, $destination);
+                $source = JPATH_PLUGINS . '/vmshipment/mds_shipping/mds_validation';
+                $destination = $dest . '/mds_validation';
             } elseif ($folder == 'administrator') {
-                $source = JPATH_PLUGINS.'/vmshipment/mds_shipping/administrator/components/com_virtuemart';
-                $destination = JPATH_ADMINISTRATOR.'/components/com_virtuemart';
-                $this->recurse_copy($source, $destination);
+                $source = JPATH_PLUGINS . '/vmshipment/mds_shipping/administrator/components/com_virtuemart';
+                $destination = JPATH_ADMINISTRATOR . '/components/com_virtuemart';
             }
+            Folder::copy($source, $destination, '', true);
         }
 
         // Replace jQuery file
