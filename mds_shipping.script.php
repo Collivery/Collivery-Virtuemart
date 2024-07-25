@@ -178,21 +178,38 @@ class plgVmShipmentMds_ShippingInstallerScript extends InstallerScript
         File::copy($jquery_source, $jquery_destination);
     }
 
-        // Insert menu entries
-        $sel_query = "SELECT module_id FROM `#__virtuemart_modules` WHERE module_name='order';";
-        $this->db->setQuery($sel_query);
+    /**
+     * Insert menu entries method
+     */
+    private function insertMenuEntries()
+    {
+        $query = $this->db->getQuery(true)
+            ->select($this->db->quoteName('module_id'))
+            ->from($this->db->quoteName('#__virtuemart_modules'))
+            ->where($this->db->quoteName('module_name') . ' = ' . $this->db->quote('order'));
+        $this->db->setQuery($query);
         $order_module_id = $this->db->loadResult();
 
-        $sel_query = "SELECT module_id FROM `#__virtuemart_modules` WHERE module_name='configuration';";
-        $this->db->setQuery($sel_query);
+        $query = $this->db->getQuery(true)
+            ->select($this->db->quoteName('module_id'))
+            ->from($this->db->quoteName('#__virtuemart_modules'))
+            ->where($this->db->quoteName('module_name') . ' = ' . $this->db->quote('configuration'));
+        $this->db->setQuery($query);
         $configuration_module_id = $this->db->loadResult();
 
-        $adminmenuentries = '('.$order_module_id.", 'MDS Confirm Collivery', '', 'vmicon vmicon-16-lorry', 2, 'mds', 'awaiting_dispatch'),";
-        $adminmenuentries .= '('.$order_module_id.", 'MDS Already Confirmed', '', 'vmicon vmicon-16-lorry', 2, 'mds', 'index'),";
-        $adminmenuentries .= '('.$configuration_module_id.", 'MDS Collivery Config', '', 'vmicon vmicon-16-config', 1, 'mds', 'config');";
-        $adminmenuentries_insert_query = 'INSERT INTO `#__virtuemart_adminmenuentries` (`module_id`, `name`, `link`, `icon_class`, `ordering`, `view`, `task`) VALUES '.$adminmenuentries;
-        $this->db->setQuery($adminmenuentries_insert_query);
+        $adminmenuentries = [
+            [$order_module_id, 'MDS Confirm Collivery', '', 'vmicon vmicon-16-lorry', 2, 'mds', 'awaiting_dispatch'],
+            [$order_module_id, 'MDS Already Confirmed', '', 'vmicon vmicon-16-lorry', 2, 'mds', 'index'],
+            [$configuration_module_id, 'MDS Collivery Config', '', 'vmicon vmicon-16-config', 1, 'mds', 'config']
+        ];
+
+        $query = $this->db->getQuery(true);
+        $query->insert($this->db->quoteName('#__virtuemart_adminmenuentries'))
+            ->columns($this->db->quoteName(['module_id', 'name', 'link', 'icon_class', 'ordering', 'view', 'task']))
+            ->values($adminmenuentries);
+        $this->db->setQuery($query);
         $this->db->execute();
+    }
 
         // Insert new mds module
         $module_value = "('mds', 'Process shipping: Edit shipping details, add instructions.', 'admin,storeadmin', 1, 1, 3);";
