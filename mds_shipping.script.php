@@ -229,39 +229,63 @@ class plgVmShipmentMds_ShippingInstallerScript extends InstallerScript
         $this->db->execute();
     }
 
+    /**
+     * Insert services and towns method
+     */
+    private function insertServicesAndTowns()
+    {
         // Get South Africa ID
-        $sel_query = "SELECT virtuemart_country_id FROM `#__virtuemart_countries` WHERE country_name='South Africa';";
-        $this->db->setQuery($sel_query);
+        $query = $this->db->getQuery(true)
+            ->select($this->db->quoteName('virtuemart_country_id'))
+            ->from($this->db->quoteName('#__virtuemart_countries'))
+            ->where($this->db->quoteName('country_name') . ' = ' . $this->db->quote('South Africa'));
+        $this->db->setQuery($query);
         $virtuemart_country_id = $this->db->loadResult();
 
         // Insert services
         foreach ($this->services as $service_key => $service_value) {
-            $service_insert = '('.$this->extension_id.", 'mds_shipping', 'markup=10');";
-            $states_insert_query = 'INSERT INTO `#__virtuemart_shipmentmethods` (`shipment_jplugin_id`, `shipment_element`, `shipment_params`) VALUES '.$service_insert;
-            $this->db->setQuery($states_insert_query);
+            $query = $this->db->getQuery(true);
+            $query->insert($this->db->quoteName('#__virtuemart_shipmentmethods'))
+                ->columns($this->db->quoteName(['shipment_jplugin_id', 'shipment_element', 'shipment_params']))
+                ->values(
+                    $this->db->quote($this->extension_id) . ', ' .
+                    $this->db->quote('mds_shipping') . ', ' .
+                    $this->db->quote('markup=10')
+                );
+            $this->db->setQuery($query);
             $this->db->execute();
             $new_virtuemart_shipmentmethod_id = $this->db->insertid();
 
-            $service_description_insert = '('.$new_virtuemart_shipmentmethod_id.", '".addslashes($service_value)."', 'MDS Collivery: ".addslashes($service_value)."', ".$service_key.')';
-            $states_insert_query = 'INSERT INTO `#__virtuemart_shipmentmethods_en_gb` (`virtuemart_shipmentmethod_id`, `shipment_name`, `shipment_desc`, `slug`) VALUES '.$service_description_insert;
-            $this->db->setQuery($states_insert_query);
+            $query = $this->db->getQuery(true);
+            $query->insert($this->db->quoteName('#__virtuemart_shipmentmethods_en_gb'))
+                ->columns($this->db->quoteName(['virtuemart_shipmentmethod_id', 'shipment_name', 'shipment_desc', 'slug']))
+                ->values(
+                    $this->db->quote($new_virtuemart_shipmentmethod_id) . ', ' .
+                    $this->db->quote($service_value) . ', ' .
+                    $this->db->quote('MDS Collivery: ' . $service_value) . ', ' .
+                    $this->db->quote($service_key)
+                );
+            $this->db->setQuery($query);
             $this->db->execute();
         }
 
         // Delete existing towns
-        $delete_query = 'DELETE FROM `#__virtuemart_states` WHERE `virtuemart_country_id`='.$virtuemart_country_id.';';
-        $this->db->setQuery($delete_query);
+        $query = $this->db->getQuery(true);
+        $query->delete($this->db->quoteName('#__virtuemart_states'))
+            ->where($this->db->quoteName('virtuemart_country_id') . ' = ' . $this->db->quote($virtuemart_country_id));
+        $this->db->setQuery($query);
         $this->db->execute();
 
         // Insert towns
-        $town_sql = '';
-        foreach ($this->towns as $towns_value) {
-            $town_name = $this->db->quote($towns_value['name']);
-            $town_sql .= '('.$virtuemart_country_id.', '.$town_name.'),';
+        $values = [];
+        foreach ($this->towns as $town) {
+            $values[] = $this->db->quote($virtuemart_country_id) . ', ' . $this->db->quote($town['name']);
         }
-        $town_sql = rtrim($town_sql, ',');
-        $town_insert_query = 'INSERT INTO `#__virtuemart_states` (`virtuemart_country_id`, `state_name`) VALUES '.$town_sql;
-        $this->db->setQuery($town_insert_query);
+        $query = $this->db->getQuery(true);
+        $query->insert($this->db->quoteName('#__virtuemart_states'))
+            ->columns($this->db->quoteName(['virtuemart_country_id', 'state_name']))
+            ->values($values);
+        $this->db->setQuery($query);
         $this->db->execute();
     }
 
