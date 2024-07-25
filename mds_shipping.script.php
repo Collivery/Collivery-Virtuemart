@@ -211,11 +211,23 @@ class plgVmShipmentMds_ShippingInstallerScript extends InstallerScript
         $this->db->execute();
     }
 
-        // Insert new mds module
-        $module_value = "('mds', 'Process shipping: Edit shipping details, add instructions.', 'admin,storeadmin', 1, 1, 3);";
-        $module_insert_query = 'INSERT INTO `#__virtuemart_modules` (`module_name`, `module_description`, `module_perms`, `published`, `is_admin`, `ordering`) VALUES '.$module_value;
-        $this->db->setQuery($module_insert_query);
+    /**
+     * Insert MDS module method
+     */
+    private function insertMdsModule()
+    {
+        $query = $this->db->getQuery(true);
+        $query->insert($this->db->quoteName('#__virtuemart_modules'))
+            ->columns($this->db->quoteName(['module_name', 'module_description', 'module_perms', 'published', 'is_admin', 'ordering']))
+            ->values(
+                $this->db->quote('mds') . ', ' .
+                $this->db->quote('Process shipping: Edit shipping details, add instructions.') . ', ' .
+                $this->db->quote('admin,storeadmin') . ', ' .
+                '1, 1, 3'
+            );
+        $this->db->setQuery($query);
         $this->db->execute();
+    }
 
         // Get South Africa ID
         $sel_query = "SELECT virtuemart_country_id FROM `#__virtuemart_countries` WHERE country_name='South Africa';";
