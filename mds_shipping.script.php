@@ -52,14 +52,23 @@ class plgVmShipmentMds_ShippingInstallerScript extends InstallerScript
     protected function init()
     {
         // Get plugin information
-        $sel_query = "SELECT * FROM `#__extensions` WHERE type = 'plugin' AND element = 'mds_shipping' AND folder = 'vmshipment';";
-        $this->db->setQuery($sel_query);
-        $this->extension_id = $this->db->loadResult();
-        $this->app_info = json_decode($this->db->loadResult()->manifest_cache);
+        $query = $this->db->getQuery(true)
+            ->select('*')
+            ->from($this->db->quoteName('#__extensions'))
+            ->where($this->db->quoteName('type') . ' = ' . $this->db->quote('plugin'))
+            ->where($this->db->quoteName('element') . ' = ' . $this->db->quote('mds_shipping'))
+            ->where($this->db->quoteName('folder') . ' = ' . $this->db->quote('vmshipment'));
+        $this->db->setQuery($query);
+        $extension = $this->db->loadObject();
+        $this->extension_id = $extension->extension_id;
+        $this->app_info = json_decode($extension->manifest_cache);
 
         // Get configuration
-        $sel_query = 'SELECT * FROM `#__mds_collivery_config` WHERE id=1;';
-        $this->db->setQuery($sel_query);
+        $query = $this->db->getQuery(true)
+            ->select('*')
+            ->from($this->db->quoteName('#__mds_collivery_config'))
+            ->where($this->db->quoteName('id') . ' = 1');
+        $this->db->setQuery($query);
         $config = $this->db->loadObject();
         $this->username = $config->username;
         $this->password = $config->password;
