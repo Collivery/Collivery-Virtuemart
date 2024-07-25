@@ -90,8 +90,8 @@ class plgVmShipmentMds_ShippingInstallerScript extends InstallerScript
         ];
 
         // Use the MDS API Files
-        require_once 'Mds/Cache.php';
-        require_once 'Mds/Collivery.php';
+        require_once JPATH_PLUGINS . '/vmshipment/mds_shipping/Mds/Cache.php';
+        require_once JPATH_PLUGINS . '/vmshipment/mds_shipping/Mds/Collivery.php';
         $collivery = new Mds\Collivery($config);
 
         // Get information from the API
