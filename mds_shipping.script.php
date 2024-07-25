@@ -73,9 +73,10 @@ class plgVmShipmentMds_ShippingInstallerScript extends InstallerScript
         $this->username = $config->username;
         $this->password = $config->password;
 
-        $version = new \Joomla\CMS\Version();
+
+        $version = new Version();
         $joomlaVersion = $version->getShortVersion();
-        $virtuemartVersion = VmConfig::getInstalledVersion(true);
+        $virtuemartVersion = $this->getVirtueMartVersion();
         $app_host = 'Joomla: ' . $joomlaVersion . ' - Virtuemart: ' . $virtuemartVersion;
 
         // Setup config for MDS API
