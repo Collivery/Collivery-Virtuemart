@@ -290,72 +290,64 @@ class plgVmShipmentMds_ShippingInstallerScript extends InstallerScript
     }
 
     /**
-     * Recursive function to copy files and directories
-     *
-     * @param string $src Source path
-     * @param string $dst Destination path
+     * Run SQL script method
      */
-    private function recurse_copy($src, $dst)
-    {
-        $dir = opendir($src);
-        @mkdir($dst);
-        while (false !== ($file = readdir($dir))) {
-            if (($file != '.') && ($file != '..')) {
-                if (is_dir($src.'/'.$file)) {
-                    $this->recurse_copy($src.'/'.$file, $dst.'/'.$file);
-                } else {
-                    copy($src.'/'.$file, $dst.'/'.$file);
-                }
-            }
-        }
-        closedir($dir);
-    }
-
-    /**
-     * Called on update
-     *
-     * @param mixed $adapter The object responsible for running this script
-     *
-     * @return boolean true on success
-     */
-    public function update($adapter)
-    {
-        $this->install($adapter);
-    }
-
-    /**
-     * Called on uninstallation
-     *
-     * @param mixed $adapter The object responsible for running this script
-     *
-     * @return boolean true on success
-     */
-    public function uninstall($adapter)
-    {
-        // Implement uninstall logic if necessary
-    }
-
-
     private function runSqlScript($file)
     {
-        $db = JFactory::getDbo();
-        $query = file_get_contents(JPATH_PLUGINS . '/vmshipment/mds_shipping/' . $file);
-        if ($query === false) {
-            JFactory::getApplication()->enqueueMessage('Error reading SQL file', 'error');
+        $sql = file_get_contents(JPATH_PLUGINS . '/vmshipment/mds_shipping/' . $file);
+        if ($sql === false) {
+            Factory::getApplication()->enqueueMessage('Error reading SQL file', 'error');
             return;
         }
 
-        $queries = explode(';', $query);
+        $queries = $this->db->splitSql($sql);
         foreach ($queries as $query) {
             $query = trim($query);
             if (!empty($query)) {
+                $this->db->setQuery($query);
                 try {
-                    $db->setQuery($query);
-                    $db->execute();
-                } catch (RuntimeException $e) {
-                    JFactory::getApplication()->enqueueMessage('SQL Error: ' . $e->getMessage(), 'error');
+                    $this->db->execute();
+                } catch (\Exception $e) {
+                    Factory::getApplication()->enqueueMessage('SQL Error: ' . $e->getMessage(), 'error');
                 }
             }
         }
+    }
+
+
+    private function getVirtueMartVersion()
+    {
+        // Check for VM_VERSION constant
+        if (defined('VM_VERSION')) {
+            return VM_VERSION;
+        }
+
+        // Try to get version from the virtuemart_configs table
+        try {
+            $db = Factory::getContainer()->get('DatabaseDriver');
+            $query = $db->getQuery(true)
+                ->select($db->quoteName('config_value'))
+                ->from($db->quoteName('#__virtuemart_configs'))
+                ->where($db->quoteName('config_name') . ' = ' . $db->quote('version'));
+            $db->setQuery($query);
+            $version = $db->loadResult();
+            if ($version) {
+                return $version;
+            }
+        } catch (\Exception $e) {
+            // If there's an error (e.g., table doesn't exist), we'll fall through to the next method
+        }
+
+        // Try to get version from the manifest file
+        $manifest_file = JPATH_ADMINISTRATOR . '/components/com_virtuemart/virtuemart.xml';
+        if (file_exists($manifest_file)) {
+            $manifest = simplexml_load_file($manifest_file);
+            if ($manifest) {
+                return (string)$manifest->version;
+            }
+        }
+
+        // If we can't determine the version, return a placeholder
+        return 'Unknown';
     }
 }
