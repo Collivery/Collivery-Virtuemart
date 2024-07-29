@@ -203,13 +203,17 @@ class plgVmShipmentMds_ShippingInstallerScript extends InstallerScript
             [$configuration_module_id, 'MDS Collivery Config', '', 'vmicon vmicon-16-config', 1, 'mds', 'config']
         ];
 
-        $query = $this->db->getQuery(true);
-        $query->insert($this->db->quoteName('#__virtuemart_adminmenuentries'))
-            ->columns($this->db->quoteName(['module_id', 'name', 'link', 'icon_class', 'ordering', 'view', 'task']))
-            ->values($adminmenuentries);
-        $this->db->setQuery($query);
-        $this->db->execute();
+        // Insert each entry individually
+        foreach ($adminmenuentries as $entry) {
+            $query = $this->db->getQuery(true);
+            $query->insert($this->db->quoteName('#__virtuemart_adminmenuentries'))
+                ->columns($this->db->quoteName(['module_id', 'name', 'link', 'icon_class', 'ordering', 'view', 'task']))
+                ->values(implode(',', array_map([$this->db, 'quote'], $entry)));
+            $this->db->setQuery($query);
+            $this->db->execute();
+        }
     }
+
 
     /**
      * Insert MDS module method
