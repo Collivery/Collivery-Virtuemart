@@ -281,16 +281,17 @@ class plgVmShipmentMds_ShippingInstallerScript extends InstallerScript
         $this->db->execute();
 
         // Insert towns
-        $values = [];
         foreach ($this->towns as $town) {
-            $values[] = $this->db->quote($virtuemart_country_id) . ', ' . $this->db->quote($town['name']);
+            $query = $this->db->getQuery(true);
+            $query->insert($this->db->quoteName('#__virtuemart_states'))
+                ->columns($this->db->quoteName(['virtuemart_country_id', 'state_name']))
+                ->values(
+                    $this->db->quote($virtuemart_country_id) . ', ' .
+                    $this->db->quote($town['name'])
+                );
+            $this->db->setQuery($query);
+            $this->db->execute();
         }
-        $query = $this->db->getQuery(true);
-        $query->insert($this->db->quoteName('#__virtuemart_states'))
-            ->columns($this->db->quoteName(['virtuemart_country_id', 'state_name']))
-            ->values($values);
-        $this->db->setQuery($query);
-        $this->db->execute();
     }
 
     /**
