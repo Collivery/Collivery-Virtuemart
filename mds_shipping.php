@@ -97,10 +97,18 @@ class plgVmShipmentMds_Shipping extends vmPSPlugin
             'user_password' => $this->password
         ];
 
+
         // Use the MDS API Files
         require_once 'Mds/Cache.php';
+
+        Factory::getApplication()->enqueueMessage('Cache file loaded', 'warning');
+
         require_once 'Mds/Collivery.php';
+        Factory::getApplication()->enqueueMessage('Collivery file loaded', 'warning');
+
         $this->collivery = new Mds\Collivery($config);
+        Factory::getApplication()->enqueueMessage($this->collivery, 'warning');
+
 
         // Get some information from the API
 
@@ -407,7 +415,7 @@ class plgVmShipmentMds_Shipping extends vmPSPlugin
      *
      * @return array
      */
-    protected function getVarsToPush()
+    protected function getVarsToPush():array
     {
         return [
             'username' => ['default_value', 'char'],
